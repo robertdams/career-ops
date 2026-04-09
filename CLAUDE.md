@@ -61,28 +61,31 @@ AI-powered job search automation built on Claude Code: pipeline tracking, offer 
 | `analyze-patterns.mjs` | Pattern analysis script (JSON output) |
 | `reports/` | Evaluation reports (format: `{###}-{company-slug}-{YYYY-MM-DD}.md`) |
 
-### OpenCode Commands
+### Skills (Slash Commands)
 
-When using [OpenCode](https://opencode.ai), the following slash commands are available (defined in `.opencode/commands/`):
+Each mode is a standalone skill in `.claude/skills/`. Invoke directly or via the router:
 
-| Command | Claude Code Equivalent | Description |
-|---------|------------------------|-------------|
-| `/career-ops` | `/career-ops` | Show menu or evaluate JD with args |
-| `/career-ops-pipeline` | `/career-ops pipeline` | Process pending URLs from inbox |
-| `/career-ops-evaluate` | `/career-ops oferta` | Evaluate job offer (A-F scoring) |
-| `/career-ops-compare` | `/career-ops ofertas` | Compare and rank multiple offers |
-| `/career-ops-contact` | `/career-ops contacto` | LinkedIn outreach (find contacts + draft) |
-| `/career-ops-deep` | `/career-ops deep` | Deep company research |
-| `/career-ops-pdf` | `/career-ops pdf` | Generate ATS-optimized CV |
-| `/career-ops-training` | `/career-ops training` | Evaluate course/cert against goals |
-| `/career-ops-project` | `/career-ops project` | Evaluate portfolio project idea |
-| `/career-ops-tracker` | `/career-ops tracker` | Application status overview |
-| `/career-ops-apply` | `/career-ops apply` | Live application assistant |
-| `/career-ops-scan` | `/career-ops scan` | Scan portals for new offers |
-| `/career-ops-batch` | `/career-ops batch` | Batch processing with parallel workers |
-| `/career-ops-patterns` | `/career-ops patterns` | Analyze rejection patterns and improve targeting |
+| Skill | Direct Command | Router Equivalent | Description |
+|-------|---------------|-------------------|-------------|
+| `career-ops` | `/career-ops` | -- | Router: show menu or auto-detect JD |
+| `career-ops-evaluate` | `/career-ops-evaluate` | `/career-ops evaluate` | Evaluate job offer (A-F scoring) |
+| `career-ops-compare` | `/career-ops-compare` | `/career-ops compare` | Compare and rank multiple offers |
+| `career-ops-pdf` | `/career-ops-pdf` | `/career-ops pdf` | Generate ATS-optimized CV |
+| `career-ops-contact` | `/career-ops-contact` | `/career-ops contact` | LinkedIn outreach (find contacts + draft) |
+| `career-ops-deep` | `/career-ops-deep` | `/career-ops deep` | Deep company research |
+| `career-ops-interview` | `/career-ops-interview` | `/career-ops interview` | Company-specific interview prep |
+| `career-ops-training` | `/career-ops-training` | `/career-ops training` | Evaluate course/cert against goals |
+| `career-ops-project` | `/career-ops-project` | `/career-ops project` | Evaluate portfolio project idea |
+| `career-ops-tracker` | `/career-ops-tracker` | `/career-ops tracker` | Application status overview |
+| `career-ops-apply` | `/career-ops-apply` | `/career-ops apply` | Live application assistant |
+| `career-ops-scan` | `/career-ops-scan` | `/career-ops scan` | Scan portals for new offers |
+| `career-ops-pipeline` | `/career-ops-pipeline` | `/career-ops pipeline` | Process pending URLs from inbox |
+| `career-ops-batch` | `/career-ops-batch` | `/career-ops batch` | Batch processing with parallel workers |
+| `career-ops-patterns` | `/career-ops-patterns` | `/career-ops patterns` | Analyze rejection patterns |
 
-**Note:** OpenCode commands invoke the same `.claude/skills/career-ops/SKILL.md` skill used by Claude Code. The `modes/*` files are shared between both platforms.
+**Architecture:** Each skill reads its mode file from `modes/` for detailed instructions. The `modes/` files remain the single source of truth for mode logic. Skills are thin routers that load context files + the mode file.
+
+**OpenCode:** Commands in `.opencode/commands/` map to the same skills and share the same `modes/*` files.
 
 ### First Run — Onboarding (IMPORTANT)
 
@@ -199,25 +202,25 @@ Default modes are in `modes/` (English). Additional language-specific modes are 
 
 **When NOT to:** If the user applies to English-language roles, even at French or German companies, use the default English modes.
 
-### Skill Modes
+### Skill Routing
 
-| If the user... | Mode |
-|----------------|------|
-| Pastes JD or URL | auto-pipeline (evaluate + report + PDF + tracker) |
-| Asks to evaluate offer | `oferta` |
-| Asks to compare offers | `ofertas` |
-| Wants LinkedIn outreach | `contacto` |
-| Asks for company research | `deep` |
-| Preps for interview at specific company | `interview-prep` |
-| Wants to generate CV/PDF | `pdf` |
-| Evaluates a course/cert | `training` |
-| Evaluates portfolio project | `project` |
-| Asks about application status | `tracker` |
-| Fills out application form | `apply` |
-| Searches for new offers | `scan` |
-| Processes pending URLs | `pipeline` |
-| Batch processes offers | `batch` |
-| Asks about rejection patterns or wants to improve targeting | `patterns` |
+| If the user... | Skill |
+|----------------|-------|
+| Pastes JD or URL | `/career-ops` (auto-pipeline: evaluate + report + PDF + tracker) |
+| Asks to evaluate offer | `/career-ops-evaluate` |
+| Asks to compare offers | `/career-ops-compare` |
+| Wants LinkedIn outreach | `/career-ops-contact` |
+| Asks for company research | `/career-ops-deep` |
+| Preps for interview at specific company | `/career-ops-interview` |
+| Wants to generate CV/PDF | `/career-ops-pdf` |
+| Evaluates a course/cert | `/career-ops-training` |
+| Evaluates portfolio project | `/career-ops-project` |
+| Asks about application status | `/career-ops-tracker` |
+| Fills out application form | `/career-ops-apply` |
+| Searches for new offers | `/career-ops-scan` |
+| Processes pending URLs | `/career-ops-pipeline` |
+| Batch processes offers | `/career-ops-batch` |
+| Asks about rejection patterns | `/career-ops-patterns` |
 
 ### CV Source of Truth
 
